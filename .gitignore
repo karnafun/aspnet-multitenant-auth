@@ -1,3 +1,7 @@
+# ================================
+# Visual Studio / C# / .NET
+# ================================
+
 # User-specific files
 *.suo
 *.user
@@ -15,7 +19,7 @@ x86/
 # Visual Studio cache/options
 .vs/
 
-# User Secrets (already stored separately)
+# User Secrets
 appsettings.Development.json
 appsettings.*.json
 
@@ -34,4 +38,31 @@ logs/
 
 # JetBrains Rider
 .idea/
-*.sln.imlDocs/*.sql
+*.sln.iml
+
+# ================================
+# SQL files
+# ================================
+*.sql
+
+# ================================
+# React / Vite / frontend
+# ================================
+node_modules/
+dist/
+build/
+.vite/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ================================
+# EF Migrations
+# ================================
+# Ignore Designer.cs files (auto-generated)
+**/Migrations/*.Designer.cs
+
+# Optionally, ignore migration snapshots
+**/Migrations/*Snapshot.cs
