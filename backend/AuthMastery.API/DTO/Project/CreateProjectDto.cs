@@ -11,6 +11,7 @@ namespace AuthMastery.API.DTO.Project
         public string Title { get; set; }
         [MaxLength(1000)]
         public string? Description { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ProjectStatus? Status { get; set; }
         [EmailAddress]
         [JsonPropertyName("AssignedTo")]

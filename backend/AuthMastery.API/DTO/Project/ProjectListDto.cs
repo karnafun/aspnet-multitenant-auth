@@ -9,5 +9,6 @@ namespace AuthMastery.API.DTO.Project
         public string Status { get; set; }
         public string CreatedByName { get; set; }
         public int WatcherCount { get; set; }
+        public string AssignedTo { get; set; }
     }
 }

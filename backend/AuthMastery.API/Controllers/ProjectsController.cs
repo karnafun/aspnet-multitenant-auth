@@ -44,6 +44,15 @@ namespace AuthMastery.API.Controllers
         }
 
         [Authorize]
+        [HttpGet("statuses")]
+        public IActionResult GetStatusList() {
+
+            _logger.LogInformation("Get status list called");
+            var list = _projectService.GetStatusList();
+            return Ok(list);
+        }
+
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProjectById(Guid id)
         {

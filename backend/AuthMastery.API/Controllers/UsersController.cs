@@ -46,11 +46,16 @@ namespace AuthMastery.API.Controllers
             var userId = User.GetUserId();
             var email = User.GetEmail();
             var tenantId = User.GetTenantId();
+            var roles = User.Claims
+              .Where(c => c.Type == ClaimTypes.Role)
+              .Select(c => c.Value)
+              .ToList();
             return Ok(new
             {
                 userId,
                 email,
-                tenantId
+                tenantId,
+                roles
             });
         }
     }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '',
+  baseURL: 'http://localhost:5000',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ const processQueue = (error, token = null) => {
       prom.resolve(token);
     }
   });
-  
+
   failedQueue = [];
 };
 
@@ -68,13 +68,13 @@ api.interceptors.response.use(
       try {
         const { data } = await api.post('/api/auth/refresh');
         const newToken = data.accessToken;
-        
+
         setAccessToken(newToken);
         processQueue(null, newToken);
-        
+
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
-        
+
       } catch (refreshError) {
         processQueue(refreshError, null);
         setAccessToken(null);

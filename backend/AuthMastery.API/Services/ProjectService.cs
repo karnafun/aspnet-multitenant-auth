@@ -13,6 +13,8 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+
+
 namespace AuthMastery.API.Services
 {
     public class ProjectService
@@ -90,8 +92,9 @@ namespace AuthMastery.API.Services
                         Title = p.Title,
                         Status = p.Status.ToString(),
                         CreatedByName = p.CreatedBy.UserName,
-                        WatcherCount = p.ProjectWatchers.Count
-                    })
+                        WatcherCount = p.ProjectWatchers.Count,
+                        AssignedTo = p.AssignedTo.Email
+                    })                    
                     .ToListAsync();
                 
                 _logger.LogInformation("Retrieved {Count} projects for TenantId: {TenantId}", projects.Count, tenantId);
@@ -440,5 +443,18 @@ namespace AuthMastery.API.Services
             }
         }
 
+        public List<ProjectStatusDto> GetStatusList()
+        {
+            var statuses = Enum.GetValues(typeof(ProjectStatus))
+                 .Cast<ProjectStatus>()
+                 .Select(s => new ProjectStatusDto
+                 {
+                     Value = (int)s,
+                     Name = s.ToString(),
+                     DisplayName = Utils.GetDisplayName(s)
+                 });
+
+            return statuses.ToList();
+        }
     }
 }

@@ -28,7 +28,6 @@ export function AuthProvider({ children }) {
 
                 scheduleTokenRefresh(data.expiresIn);
             } catch (error) {
-                console.error('Silent refresh failed:', error);
                 localStorage.removeItem('hasSession');
             }
         }, refreshTime);
@@ -37,7 +36,7 @@ export function AuthProvider({ children }) {
         setIsLoading(true);
 
         try {
-            const { data } = await api.post('/api/users/login', {
+            const { data } = await api.post('/api/auth/login', {
                 email,
                 password,
                 tenantIdentifier: tenant,
@@ -89,7 +88,7 @@ export function AuthProvider({ children }) {
                 setAccessToken(data.accessToken);
                 setAxiosToken(data.accessToken);
 
-                const userResponse = await api.get('/api/auth/me', {
+                const userResponse = await api.get('/api/users/me', {
                     headers: {
                         Authorization: `Bearer ${data.accessToken}`,
                     },
@@ -99,6 +98,7 @@ export function AuthProvider({ children }) {
                 scheduleTokenRefresh(data.expiresIn);
 
             } catch (error) {
+                console.log("Error on refresh: "+error)
                 localStorage.removeItem('hasSession');
                 console.log('Session expired');
             } finally {

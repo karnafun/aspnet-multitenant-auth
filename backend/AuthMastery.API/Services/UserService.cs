@@ -3,6 +3,7 @@ using AuthMastery.API.DTO;
 using AuthMastery.API.DTO.Project;
 using AuthMastery.API.Models;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -69,11 +70,67 @@ namespace AuthMastery.API.Services
                 if (user == null)
                 {
                     _logger.LogWarning($"User not found: {userEmail}");
-                    throw new NotFoundException($"User {userEmail} not found"); 
+                    throw new NotFoundException($"User {userEmail} not found");
                 }
 
                 var userDto = _mapper.Map<UserDetailsDto>(user);
                 return userDto;
+            }
+            catch (Exception ex) when (ex is not (NotFoundException or BadRequestException))
+            {
+                var context = new { userEmail };
+                throw new UserOperationException(tenantId: tenantId, context: context, inner: ex);
+            }
+        }
+
+        public async Task<List<UserAdminDto>> AdminGetAllUsersAsync()
+        {
+            var tenantId = _tenantProvider.GetTenantId();
+            _logger.LogInformation("AdminGetAllUsersAsync for TenantId: {TenantId}", tenantId);
+
+            try
+            {
+                var users = await _context.Users
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                _logger.LogInformation("Retrieved {Count} users", users.Count);
+
+                return _mapper.Map<List<UserAdminDto>>(users);
+            }
+            catch (Exception ex) when (ex is not (NotFoundException or BadRequestException))
+            {
+                throw new UserOperationException(tenantId: tenantId, inner: ex);
+            }
+        }
+
+        public async Task<UserAdminDetailsDto> AdminGetUserByEmailAsync(string userEmail)
+        {
+            var tenantId = _tenantProvider.GetTenantId();
+            _logger.LogInformation("AdminGetUserByIdAsync Email:{UserEmail}, TenantId: {TenantId}", userEmail, tenantId);
+
+            try
+            {
+                //var user = await _context.Users
+                //    .AsNoTracking()
+                //.Include(u => u.ProjectsWatching)
+                //    .ThenInclude(w => w.Project)
+                //        .ThenInclude(p => p.AssignedTo)
+                //.Include(u => u.ProjectsWatching)
+                //    .ThenInclude(w => w.Project)
+                //        .ThenInclude(p => p.CreatedBy)
+                //.FirstOrDefaultAsync(u => u.Email == userEmail);
+                var user = await _context.Users
+                    .Where(u => u.Email == userEmail)
+                    .ProjectTo<UserAdminDetailsDto>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync();
+                if (user == null)
+                {
+                    _logger.LogWarning($"User not found: {userEmail}");
+                    throw new NotFoundException($"User {userEmail} not found");
+                }
+
+                return _mapper.Map<UserAdminDetailsDto>(user);
             }
             catch (Exception ex) when (ex is not (NotFoundException or BadRequestException))
             {

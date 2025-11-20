@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using AuthMastery.API.DTO;
 using Microsoft.AspNetCore.Authorization;
 using AuthMastery.API.Extensions;
+using Microsoft.Extensions.Options;
 
 // ============================================
 // SERILOG CONFIGURATION (Bootstrap Logger)
@@ -25,7 +26,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information)
     .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning) 
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
 
     .Enrich.FromLogContext()
     .Enrich.WithThreadId()
@@ -52,7 +53,13 @@ try
     // DATABASE
     // ============================================
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        {
+            var connStr = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING")
+                      ?? builder.Configuration.GetConnectionString("DefaultConnection");
+            options.UseSqlServer(connStr);
+        });
+
+
 
     // ============================================
     // IDENTITY
@@ -106,6 +113,22 @@ try
         });
     });
 
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(80); // <-- this is key for Docker port mapping
+    });
+    builder.Services.AddCors(options =>
+    {
+        var allowedOrigin = "http://localhost:3000";
+        options.AddPolicy("AllowSPA",
+            policy => policy
+                .WithOrigins(allowedOrigin) 
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials());
+});
+
+
     // ============================================
     // EXCEPTION HANDLING
     // ============================================
@@ -130,7 +153,7 @@ try
     // ============================================
     var app = builder.Build();
     app.UseMiddleware<ExceptionHandlingMiddleware>();
-
+    app.UseCors("AllowSPA");
 
     // ============================================
     // DATABASE SEEDING
@@ -159,7 +182,7 @@ try
 
     app.UseHttpsRedirection();
     app.UseSerilogRequestLogging();
-    app.UseAuthentication();  
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();
@@ -191,7 +214,7 @@ static async Task SeedDatabaseAsync(WebApplication app)
         var logger = services.GetRequiredService<ILogger<DbSeeder>>();
         var httpContext = services.GetRequiredService<IHttpContextAccessor>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-        var seeder = new DbSeeder(context, userManager,logger, httpContext, roleManager);
+        var seeder = new DbSeeder(context, userManager, logger, httpContext, roleManager);
         await seeder.SeedAsync();
 
         Log.Information("Database seeded successfully");

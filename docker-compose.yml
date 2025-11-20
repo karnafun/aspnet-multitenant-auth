@@ -6,7 +6,7 @@ services:
     container_name: authmastery-sqlserver
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Aa123456!"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
       MSSQL_PID: "Developer"
     ports:
       - "1433:1433"
@@ -14,7 +14,31 @@ services:
       - sqlserver_data:/var/opt/mssql
     networks:
       - authmastery-network
-
+  api:
+    build: ./backend/AuthMastery.API
+    container_name: authmastery-api
+    ports:
+      - "5000:80"  # map container port 80 to host port 5000
+    environment:
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - SQL_CONNECTION_STRING=Server=sqlserver,1433;Database=AuthMasteryDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      - Jwt__Secret=${Jwt__Secret}
+      - Jwt__RefreshTokenSecret=${Jwt__RefreshTokenSecret}
+    depends_on:
+      - sqlserver
+    networks:
+      - authmastery-network
+      
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: authmastery-frontend
+    ports:
+      - "3000:80"   # expose Nginx port to host
+    networks:
+      - authmastery-network
+      
 volumes:
   sqlserver_data:
     driver: local
@@ -22,3 +46,4 @@ volumes:
 networks:
   authmastery-network:
     driver: bridge
+

@@ -51,8 +51,8 @@ public class AuthController : ControllerBase
         Response.Cookies.Append(AuthConstants.RefreshTokenCookie, result.RefreshToken!, GetRefreshTokenCookieOptions());
         return Ok(new
         {
-            accessToken = result.AccessToken,
-            expiresIn = _configuration[ConfigurationKeys.AccessTokenExpirationMinutes]!
+            result.AccessToken,
+            ExpiresIn = int.Parse(_configuration[ConfigurationKeys.AccessTokenExpirationMinutes])! * 60
         });
     }
 

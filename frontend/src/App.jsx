@@ -3,6 +3,11 @@ import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import ProjectsPage from './pages/ProjectsPage';
+import CreateProjectPage from './pages/CreateProjectPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
+import Navbar from "./components/Navbar";
+import AdminRoute from "./components/AdminRoute";
 
 function App() {
   const { accessToken, isLoading } = useAuth();
@@ -20,17 +25,42 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Navbar />
       <Routes>
-        <Route 
-          path="/" 
-          element={accessToken ? <Navigate to="/dashboard" replace /> : <LoginPage />} 
+        <Route
+          path="/"
+          element={accessToken ? <Navigate to="/dashboard" replace /> : <LoginPage />}
         />
-        
+
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <AdminRoute>
               <DashboardPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <ProjectsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects/new"
+          element={
+            <ProtectedRoute>
+              <CreateProjectPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects/:id"
+          element={
+            <ProtectedRoute>
+              <ProjectDetailPage />
             </ProtectedRoute>
           }
         />
