@@ -99,7 +99,6 @@ function ProjectsPage() {
                   }`}>
                     {project.status}
                   </span>
-                  {console.log(project)}
                   {project.assignedTo && (
                     <span className="text-text-secondary">
                       {project.assignedTo}

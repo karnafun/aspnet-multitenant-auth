@@ -1,6 +1,7 @@
 ﻿using AuthMastery.API.Data;
 using AuthMastery.API.DTO;
 using AuthMastery.API.Enums;
+using AuthMastery.API.Extensions;
 using AuthMastery.API.Models;
 using AuthMastery.API.Services.Results;
 using Microsoft.AspNetCore.Http;
@@ -175,7 +176,8 @@ public class AuthService
                     return RefreshResult.Failed("Invalid refresh token");
                 }
                 var timeSinceUsed = DateTime.UtcNow - storedToken.UsedAt;
-                if (timeSinceUsed.Value.TotalMilliseconds > int.Parse(_configuration[ConfigurationKeys.GracePeriodInSeconds]!) * 1000)
+                var gracePeriodMs = _configuration.GetInt32(ConfigurationKeys.GracePeriodInSeconds) * 1000;
+                if (timeSinceUsed.Value.TotalMilliseconds > gracePeriodMs)
                 {
                     _logger.LogWarning("SECURITY: Token reuse detected for user {UserId} - possible theft",
                         storedToken.UserId);
@@ -215,7 +217,7 @@ public class AuthService
             var newRefreshToken = new RefreshToken
             {
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(double.Parse(_configuration[ConfigurationKeys.RefreshTokenExpirationDays]!)),
+                ExpiresAt = DateTime.UtcNow.AddDays(_configuration.GetDouble(ConfigurationKeys.RefreshTokenExpirationDays)),
                 IsRevoked = false,
                 IsUsed = false,
                 Token = hashedToken,
@@ -290,7 +292,7 @@ public class AuthService
                 Token = hashedToken,
                 UserId = user.Id,
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(double.Parse(_configuration[ConfigurationKeys.RefreshTokenExpirationDays]!)),
+                ExpiresAt = DateTime.UtcNow.AddDays(_configuration.GetDouble(ConfigurationKeys.RefreshTokenExpirationDays)),
                 IsRevoked = false,
                 IsUsed = false
             };

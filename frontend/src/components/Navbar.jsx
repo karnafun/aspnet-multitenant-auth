@@ -12,7 +12,6 @@ export default function Navbar() {
     return (
 
         <nav className="w-full border-b border-primary-border bg-primary-surface px-4 py-3 flex justify-between items-center">
-            {console.log(user)}
             {/* Left side */}
             <div className="flex items-center gap-6">
                 <Link

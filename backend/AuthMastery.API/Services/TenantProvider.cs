@@ -26,7 +26,13 @@ namespace AuthMastery.API.Services
                 throw new UnauthorizedAccessException("Invalid token: Missing TenantId claim");
             }
 
-            return int.Parse(tenantIdClaim);
+            if (!int.TryParse(tenantIdClaim, out var tenantId) || tenantId <= 0)
+            {
+                _logger.LogWarning("Invalid TenantId claim value: {TenantIdClaim}", tenantIdClaim);
+                throw new UnauthorizedAccessException("Invalid token: TenantId claim contains invalid value");
+            }
+
+            return tenantId;
         }
     }
 }

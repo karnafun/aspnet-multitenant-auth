@@ -1,4 +1,5 @@
 ﻿using AuthMastery.API.Data;
+using AuthMastery.API.DTO;
 using AuthMastery.API.DTO.Auth;
 using AuthMastery.API.Enums;
 using AuthMastery.API.Extensions;
@@ -7,6 +8,7 @@ using AuthMastery.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.Json;
@@ -39,24 +41,27 @@ public class AuthController : ControllerBase
         Response.Cookies.Delete(AuthConstants.RefreshTokenCookie);
         return Ok();
     }
+   
     [HttpPost("refresh")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Refresh() {
         _logger.LogInformation("Refresh endpoint called");
 
         var refreshToken = Request.Cookies[AuthConstants.RefreshTokenCookie];
         var result = await _authService.RefreshAccessTokenAsync(refreshToken);
         if (!result.IsSuccess)
-            return Unauthorized(new { error = result.ErrorMessage });
+            throw new UnauthorizedException(result.ErrorMessage);
 
         Response.Cookies.Append(AuthConstants.RefreshTokenCookie, result.RefreshToken!, GetRefreshTokenCookieOptions());
         return Ok(new
         {
             result.AccessToken,
-            ExpiresIn = int.Parse(_configuration[ConfigurationKeys.AccessTokenExpirationMinutes])! * 60
+            ExpiresIn = _configuration.GetInt32(ConfigurationKeys.AccessTokenExpirationMinutes) * 60
         });
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {    
         _logger.LogInformation("Login endpoint called");
@@ -64,7 +69,7 @@ public class AuthController : ControllerBase
         var result = await _authService.LoginAsync(request.Email, request.Password, request.TenantIdentifier);
 
         if (!result.IsSuccess)
-            return Unauthorized(new { error = result.ErrorMessage });
+            throw new UnauthorizedException(result.ErrorMessage);
 
         Response.Cookies.Append(AuthConstants.RefreshTokenCookie, result.RefreshToken!, GetRefreshTokenCookieOptions());
         
@@ -72,7 +77,7 @@ public class AuthController : ControllerBase
         {
             AccessToken = result.AccessToken!,
             TokenType = "Bearer",
-            ExpiresIn = int.Parse(_configuration[ConfigurationKeys.AccessTokenExpirationMinutes]!) * 60 
+            ExpiresIn = _configuration.GetInt32(ConfigurationKeys.AccessTokenExpirationMinutes) * 60 
         });
     }
 
@@ -85,7 +90,7 @@ public class AuthController : ControllerBase
             Secure = true,
             SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(
-                double.Parse(_configuration[ConfigurationKeys.RefreshTokenExpirationDays]!))
+                _configuration.GetDouble(ConfigurationKeys.RefreshTokenExpirationDays))
         };
     }
 

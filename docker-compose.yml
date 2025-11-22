@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -14,18 +12,34 @@ services:
       - sqlserver_data:/var/opt/mssql
     networks:
       - authmastery-network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD}", "-Q", "SELECT 1", "-C"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   api:
     build: ./backend/AuthMastery.API
     container_name: authmastery-api
     ports:
-      - "5000:80"  # map container port 80 to host port 5000
+      - "5000:443" 
     environment:
       - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
       - SQL_CONNECTION_STRING=Server=sqlserver,1433;Database=AuthMasteryDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - Jwt__Secret=${Jwt__Secret}
       - Jwt__RefreshTokenSecret=${Jwt__RefreshTokenSecret}
+      - SEED_DATABASE=true
+      - ASPNETCORE_URLS=https://+:443
+
+    healthcheck:
+      test: ["CMD", "curl", "-fk", "https://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
     networks:
       - authmastery-network
       
@@ -35,7 +49,8 @@ services:
       dockerfile: Dockerfile
     container_name: authmastery-frontend
     ports:
-      - "3000:80"   # expose Nginx port to host
+      - "3000:80"    # HTTP (recommended for demo)
+      - "3001:443"   # HTTPS (for those who want it)  
     networks:
       - authmastery-network
       

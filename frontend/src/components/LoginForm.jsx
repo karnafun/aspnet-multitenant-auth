@@ -36,7 +36,7 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="input"
-            placeholder="admin@tenanta.com"
+            placeholder="user@example.com"
             required
           />
         </div>
@@ -64,7 +64,7 @@ function LoginForm() {
             value={tenant}
             onChange={(e) => setTenant(e.target.value)}
             className="input"
-            placeholder="tenanta"
+            placeholder="company"
             required
           />
         </div>

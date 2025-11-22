@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AuthMastery.API.Enums;
+using AuthMastery.API.Extensions;
 using AuthMastery.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -50,7 +51,7 @@ public class TokenService
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(
-                    int.Parse(_configuration[ConfigurationKeys.AccessTokenExpirationMinutes]!)
+                    _configuration.GetInt32(ConfigurationKeys.AccessTokenExpirationMinutes)
                 ),
                 //Expires = DateTime.UtcNow.AddSeconds(20),
                 SigningCredentials = creds,
@@ -65,14 +66,19 @@ public class TokenService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "RefreshAccessTokenAsync failed ");
+            _logger.LogError(ex, "GenerateAccessToken failed for user {UserId}", user.Id);
             throw;
         }
     }
 
     public (string rawToken, string hashedToken)  GenerateRefreshToken()
     {
-        var randomBytes = new byte[32];
+        // Use configured byte length (default 32 bytes = 256 bits for strong entropy)
+        var byteLength = int.TryParse(_configuration[ConfigurationKeys.RefreshTokenByteLength], out var length) && length > 0
+            ? length
+            : 32; // Default to 32 bytes if not configured or invalid
+        
+        var randomBytes = new byte[byteLength];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomBytes);
 

@@ -15,13 +15,11 @@ export function AuthProvider({ children }) {
         if (refreshTimeoutRef.current) {
             clearTimeout(refreshTimeoutRef.current);
         }
+        // Refresh token at 90% of expiration time to prevent expiration during active use
         const refreshTime = (expiresIn * 0.9) * 1000;
-
-        console.log(`Scheduling token refresh in ${refreshTime / 1000} seconds`);
 
         refreshTimeoutRef.current = setTimeout(async () => {
             try {
-                console.log('Silent refresh triggered');
                 const { data } = await api.post('/api/auth/refresh');
                 setAccessToken(data.accessToken);
                 setAxiosToken(data.accessToken);
@@ -68,7 +66,7 @@ export function AuthProvider({ children }) {
         try {
             await api.post('/api/auth/revoke');
         } catch (error) {
-            console.error('Logout error:', error);
+            // Silently handle logout errors - user is already logged out locally
         } finally {
             setAccessToken(null);
             setAxiosToken(null);
@@ -98,9 +96,8 @@ export function AuthProvider({ children }) {
                 scheduleTokenRefresh(data.expiresIn);
 
             } catch (error) {
-                console.log("Error on refresh: "+error)
+                // Session expired or invalid - clear local state
                 localStorage.removeItem('hasSession');
-                console.log('Session expired');
             } finally {
                 setIsLoading(false);
             }

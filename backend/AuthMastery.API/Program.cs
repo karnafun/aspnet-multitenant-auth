@@ -18,6 +18,11 @@ using AuthMastery.API.DTO;
 using Microsoft.AspNetCore.Authorization;
 using AuthMastery.API.Extensions;
 using Microsoft.Extensions.Options;
+using System;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.Text.Json;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 // ============================================
 // SERILOG CONFIGURATION (Bootstrap Logger)
@@ -45,6 +50,12 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     // ============================================
+    // CONFIGURATION VALIDATION
+    // ============================================
+    // Validate required configuration values early to fail fast
+    builder.Configuration.ValidateRequiredConfiguration();
+
+    // ============================================
     // SERILOG INTEGRATION
     // ============================================
     builder.Host.UseSerilog();
@@ -59,6 +70,8 @@ try
             options.UseSqlServer(connStr);
         });
 
+    builder.Services.AddHealthChecks()
+      .AddDbContextCheck<ApplicationDbContext>("database");
 
 
     // ============================================
@@ -115,18 +128,29 @@ try
 
     builder.WebHost.ConfigureKestrel(options =>
     {
-        options.ListenAnyIP(80); // <-- this is key for Docker port mapping
+        options.ListenAnyIP(443, listenOptions =>
+        {
+            // Use configured certificate path and password, or fall back to development defaults
+            var certPath = builder.Configuration[ConfigurationKeys.HttpsCertificatePath] ?? "/https/aspnetapp.pfx";
+            var certPassword = builder.Configuration[ConfigurationKeys.HttpsCertificatePassword] ?? "DevCertPassword";
+            
+            listenOptions.UseHttps(certPath, certPassword);
+        });
     });
+
     builder.Services.AddCors(options =>
     {
-        var allowedOrigin = "http://localhost:3000";
+        // Get CORS origins from configuration, or use development defaults
+        var corsOrigins = builder.Configuration.GetSection(ConfigurationKeys.CorsOrigins).Get<string[]>()
+            ?? new[] { "http://localhost:3000", "https://localhost:3001" };
+        
         options.AddPolicy("AllowSPA",
             policy => policy
-                .WithOrigins(allowedOrigin) 
+                .WithOrigins(corsOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials());
-});
+    });
 
 
     // ============================================
@@ -148,6 +172,50 @@ try
             }
         };
     });
+
+    builder.Services.AddRateLimiter(options =>
+    {
+        // Global rate limit: 100 requests per minute per IP
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: partition => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 100,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 0 // Don't queue, reject immediately
+                }
+            )
+        );
+
+        // Specific policy for auth endpoints
+        options.AddFixedWindowLimiter("auth", options =>
+        {
+            options.PermitLimit = 5; // Only 5 login attempts
+            options.Window = TimeSpan.FromMinutes(1);
+            options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            options.QueueLimit = 0;
+        });
+
+        // What to return when rate limited
+        options.OnRejected = async (context, token) =>
+        {
+            context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+            // Tell client when they can retry
+            if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+            {
+                context.HttpContext.Response.Headers.RetryAfter = retryAfter.TotalSeconds.ToString();
+            }
+
+            await context.HttpContext.Response.WriteAsJsonAsync(new
+            {
+                error = "Too many requests. Please try again later.",
+                retryAfter = retryAfter.TotalSeconds
+            }, cancellationToken: token);
+        };
+    });
     // ============================================
     // BUILD APP
     // ============================================
@@ -158,7 +226,21 @@ try
     // ============================================
     // DATABASE SEEDING
     // ============================================
-    await SeedDatabaseAsync(app);
+    var shouldSeed = app.Environment.IsDevelopment()
+    || builder.Configuration.GetValue<bool>("SEED_DATABASE", false);
+
+    if (shouldSeed)
+    {
+        Log.Information("Seeding database (Environment: {Env}, SEED_DATABASE: {Flag})",
+            app.Environment.EnvironmentName,
+            builder.Configuration.GetValue<bool>("SEED_DATABASE", false));
+
+        await SeedDatabaseAsync(app);
+    }
+    else
+    {
+        Log.Information("Skipping database seeding (SEED_DATABASE not set)");
+    }
 
     // ============================================
     // MIDDLEWARE PIPELINE
@@ -169,22 +251,64 @@ try
         app.UseSwaggerUI();
     }
 
-    // Enrich all logs in the request with IP address
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+    }
+
     app.Use(async (context, next) =>
     {
+        context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.Append("X-Frame-Options", "DENY");
+        context.Response.Headers.Append(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+        );
+        // Enrich all logs in the request with IP address
         var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-
         using (LogContext.PushProperty("IpAddress", ipAddress))
         {
             await next();
         }
     });
+    app.MapHealthChecks("/health", new HealthCheckOptions
+    {
+        ResponseWriter = async (context, report) =>
+        {
+            context.Response.ContentType = "application/json";
+
+            var result = JsonSerializer.Serialize(new
+            {
+                status = report.Status.ToString(),
+                checks = report.Entries.Select(e => new
+                {
+                    name = e.Key,
+                    status = e.Value.Status.ToString(),
+                    description = e.Value.Description,
+                    duration = e.Value.Duration.ToString()
+                }),
+                totalDuration = report.TotalDuration.ToString()
+            });
+
+            await context.Response.WriteAsync(result);
+        }
+    });
 
     app.UseHttpsRedirection();
-    app.UseSerilogRequestLogging();
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.GetLevel = (httpContext, _, __) =>
+        {
+            if (httpContext.Request.Path.StartsWithSegments("/health"))
+                return Serilog.Events.LogEventLevel.Debug;
+
+            return Serilog.Events.LogEventLevel.Information;
+        };
+    });
+    app.UseRateLimiter();
     app.UseAuthentication();
     app.UseAuthorization();
-
     app.MapControllers();
 
     app.Run();

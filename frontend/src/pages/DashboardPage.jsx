@@ -14,7 +14,6 @@ export default function DashboardPage() {
       const res = await adminsApi.getAllUsers();
       setUsers(res);
     } catch (err) {
-      console.error(err);
       setError(err.message || "Failed to fetch users");
     } finally {
       setLoading(false);
@@ -28,7 +27,7 @@ export default function DashboardPage() {
         prev.map((u) => (u.email === email ? { ...u, details: res } : u))
       );
     } catch (err) {
-      console.error("Error fetching user details", err);
+      // Silently fail - user can retry by clicking again
     }
   };
 

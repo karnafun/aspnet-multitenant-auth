@@ -10,5 +10,14 @@
         public const string AccessTokenExpirationMinutes = "Jwt:AccessTokenExpirationMinutes";
         public const string GracePeriodInSeconds = "GracePeriodInSeconds";
         
+        // HTTPS Configuration
+        public const string HttpsCertificatePath = "Https:CertificatePath";
+        public const string HttpsCertificatePassword = "Https:CertificatePassword";
+        
+        // CORS Configuration
+        public const string CorsOrigins = "Cors:Origins";
+        
+        // Security Configuration
+        public const string RefreshTokenByteLength = "Security:RefreshTokenByteLength";
     }
 }

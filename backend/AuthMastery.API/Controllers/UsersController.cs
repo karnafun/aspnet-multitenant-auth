@@ -8,7 +8,7 @@ namespace AuthMastery.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : Controller
+    public class UsersController : ControllerBase
     {
         private readonly UserService _userService;
         private readonly ILogger<UsersController> _logger;
@@ -32,7 +32,9 @@ namespace AuthMastery.API.Controllers
         [HttpGet("{userEmail}")]
         public async Task<IActionResult> GetUserById(string userEmail)
         {
-            _logger.LogInformation("GetAllUsers called by user: {UserId}, for email {UserEmail}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value,userEmail);
+            userEmail.ValidateEmail(nameof(userEmail));
+            
+            _logger.LogInformation("GetUserById called by user: {UserId}, for email {UserEmail}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value,userEmail);
 
             var res = await _userService.GetUserByIdAsync(userEmail);
 

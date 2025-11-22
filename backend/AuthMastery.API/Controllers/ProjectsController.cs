@@ -1,6 +1,7 @@
 ﻿using AuthMastery.API.Data;
 using AuthMastery.API.DTO.Project;
 using AuthMastery.API.Enums;
+using AuthMastery.API.Extensions;
 using AuthMastery.API.Models;
 using AuthMastery.API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -36,7 +37,7 @@ namespace AuthMastery.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllProjects()
         {
-            _logger.LogInformation("GetAllProjects called by user: {UserId}", User.FindFirst(CustomClaimTypes.Username)?.Value);
+            _logger.LogInformation("GetAllProjects called by user: {UserId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             var projects = await _projectService.GetAllProjectsAsync();
 
@@ -56,7 +57,7 @@ namespace AuthMastery.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProjectById(Guid id)
         {
-            _logger.LogInformation("GetProjectById called by user: {UserId} for Project {ProjectId}", User.FindFirst(CustomClaimTypes.Username)?.Value, id);
+            _logger.LogInformation("GetProjectById called by user: {UserId} for Project {ProjectId}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, id);
             if (id == Guid.Empty)
                 return BadRequest();
 
@@ -73,6 +74,8 @@ namespace AuthMastery.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(Guid id)
         {
+            id.ValidateGuid(nameof(id));
+            
             _logger.LogInformation("Admin {UserId} attempting to delete project {ProjectId}",
                     User.FindFirst(ClaimTypes.NameIdentifier)?.Value, id);
             await _projectService.DeleteProjectAsync(id);
@@ -95,6 +98,7 @@ namespace AuthMastery.API.Controllers
         [Authorize(Policy = "CanManageProjects")]
         [HttpPut("{projectId}")]
         public async Task<IActionResult> UpdateProject(Guid projectId, [FromBody] UpdateProjectDto dto) {
+            projectId.ValidateGuid(nameof(projectId));
 
             _logger.LogInformation("User {UserId} attempting to update project {ProjectId}",
                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value, projectId);
@@ -109,6 +113,9 @@ namespace AuthMastery.API.Controllers
         [HttpPost("{projectId}/tags/{tagSlug}")]
         public async Task<IActionResult> AddTagToProject(Guid projectId, string tagSlug)
         {
+            projectId.ValidateGuid(nameof(projectId));
+            tagSlug.ValidateTagSlug(nameof(tagSlug));
+            
             await _projectService.AddTagAsync(projectId, tagSlug);
             return NoContent();
         }
@@ -117,6 +124,9 @@ namespace AuthMastery.API.Controllers
         [HttpDelete("{projectId}/tags/{tagSlug}")]
         public async Task<IActionResult> RemoveTagFromProject(Guid projectId, string tagSlug)
         {
+            projectId.ValidateGuid(nameof(projectId));
+            tagSlug.ValidateTagSlug(nameof(tagSlug));
+            
             await _projectService.RemoveTagAsync(projectId, tagSlug);
             return NoContent();
         }
@@ -125,6 +135,9 @@ namespace AuthMastery.API.Controllers
         [HttpPost("{projectId}/watchers/{watcherEmail}")]
         public async Task<IActionResult> AddWatcherToProject(Guid projectId, string watcherEmail)
         {
+            projectId.ValidateGuid(nameof(projectId));
+            watcherEmail.ValidateEmail(nameof(watcherEmail));
+            
             await _projectService.AddWatcherAsync(projectId, watcherEmail);
             return NoContent();
         }
@@ -133,6 +146,9 @@ namespace AuthMastery.API.Controllers
         [HttpDelete("{projectId}/watchers/{watcherEmail}")]
         public async Task<IActionResult> RemoveWatcherFromProject(Guid projectId, string watcherEmail)
         {
+            projectId.ValidateGuid(nameof(projectId));
+            watcherEmail.ValidateEmail(nameof(watcherEmail));
+            
             await _projectService.RemoveWatcherAsync(projectId, watcherEmail);
             return NoContent();
         }
