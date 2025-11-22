@@ -324,8 +324,8 @@ All authentication events are logged with Serilog: login attempts, refresh token
 
 For deep dives into implementation details:
 
-- **[Architecture & Design Decisions](Docs/ARCHITECTURE.md)** - System design, flows, detailed diagrams, why I made specific architectural choices
-- **[Security Implementation](Docs/SECURITY.md)** - Token rotation mechanics, theft detection logic, multi-tenant isolation strategy, rate limiting policies
+- **[Architecture & Design Decisions](Docs/Architecture.md)** - System design, flows, detailed diagrams, why I made specific architectural choices
+- **[Security Implementation](Docs/Security.md)** - Token rotation mechanics, theft detection logic, multi-tenant isolation strategy, rate limiting policies
 
 ## 🔍 API Documentation
 
