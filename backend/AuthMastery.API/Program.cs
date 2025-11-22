@@ -125,18 +125,21 @@ try
             }
         });
     });
-
-    builder.WebHost.ConfigureKestrel(options =>
+    if (!builder.Environment.IsDevelopment())
     {
-        options.ListenAnyIP(443, listenOptions =>
+        builder.WebHost.ConfigureKestrel(options =>
         {
-            // Use configured certificate path and password, or fall back to development defaults
-            var certPath = builder.Configuration[ConfigurationKeys.HttpsCertificatePath] ?? "/https/aspnetapp.pfx";
-            var certPassword = builder.Configuration[ConfigurationKeys.HttpsCertificatePassword] ?? "DevCertPassword";
-            
-            listenOptions.UseHttps(certPath, certPassword);
+            options.ListenAnyIP(443, listenOptions =>
+            {
+                // Use configured certificate path and password, or fall back to development defaults
+                var certPath = builder.Configuration[ConfigurationKeys.HttpsCertificatePath] ?? "/https/aspnetapp.pfx";
+                var certPassword = builder.Configuration[ConfigurationKeys.HttpsCertificatePassword] ?? "DevCertPassword";
+
+                listenOptions.UseHttps(certPath, certPassword);
+            });
         });
-    });
+    }
+       
 
     builder.Services.AddCors(options =>
     {
