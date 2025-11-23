@@ -33,5 +33,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
-
+  <ItemGroup>
+    <InternalsVisibleTo Include="AuthMastery.API.Tests" />
+  </ItemGroup>
 </Project>

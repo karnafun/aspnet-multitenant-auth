@@ -1,0 +1,2210 @@
+{
+  "info": {
+    "_postman_id": "edce21af-8e2b-4953-9e53-3677a06194c1",
+    "name": "AuthMastery",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Projects Flow",
+      "item": [
+        {
+          "name": "01_Login Tenant1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "d2d030e2-62bb-4ed1-8fec-831dc69297dd",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02_GetAllProjects Tenant1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "06f72e70-46d8-4b75-aaaa-3b7142346a1b",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"projectId\", pm.response.json()[0].id);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "0b2fe290-60ae-4fc3-ac2a-0e1cd05dc23b",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03_GetProjectById - Tenant1",
+          "id": "527102cf-2402-4e6e-b8fa-06971943b5ef",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04_Login Tenant2",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "b5aa9c82-c6e7-48d6-97e3-bd23a2563785",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "6ef366f6-2ca9-42da-9ce6-6904d4154631",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessTokenTenant2\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "590f0273-6b9e-4621-ad70-da2a0fe18044",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"alice@widgets.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"widgets\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05_GetProjectById - Tenant1",
+          "id": "75af16b2-5fae-4eee-83ea-218e2a303892",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessTokenTenant2}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06_GetAllProjects",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "f02c9346-8be0-4dba-892a-26182c468801",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "f9bf462c-06b9-43ca-a9ae-d00c2aab29ba",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"projectIdTenant2\", pm.response.json()[0].id);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "d9fadd1a-2c47-43cc-97f7-3985ce06602e",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessTokenTenant2}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "07_GetProjectById Tenant2",
+          "id": "4aac081f-f030-4551-9907-4a79b787b4ae",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessTokenTenant2}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectIdTenant2}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectIdTenant2}}"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "f42e3b2c-db2b-45a6-a0e6-4850ee8b56ec",
+      "description": "01_Login - Getting Tenant1 credentials  \n02_GetAllProjects - Get project list for tenant 1  \n03_GetProjectById - Get specific Tenant 1 project  \n04_Login - Getting Tenant2 credentials  \n05_GetProjectById - Trying to get Tenant1 project with Tenant2 token - SHOULD FAIL 404  \n06_GetAllProjects - get project list for Tenant 2 (different from list in 02_GetAllProjects)  \n07_GetProjectById - Get specific Tenant2 project, should succeed"
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "/me",
+          "id": "19eae7c9-1ec0-4d5c-a42b-350598d5cd4c",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI4MjA3OWFhYy0xODhhLTQ2ZGUtODU4NS0yZjhmMzI0YmJjMDMiLCJlbWFpbCI6ImpvaG5AYWNtZS5jb20iLCJ1bmlxdWVfbmFtZSI6ImpvaG5AYWNtZS5jb20iLCJ0ZW5hbnRfaWQiOiIxIiwic2VjdXJpdHlfc3RhbXAiOiJEWUJFSUFZNFRaTVlYS1RJN1NOQTdLWlFDQ0lLREZXNyIsIm5iZiI6MTc2MzA0NTkyMCwiZXhwIjoxNzYzMDQ2ODIwLCJpYXQiOjE3NjMwNDU5MjAsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDAiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MDAwIn0.22vuRMUg2KkRsOfeP2fItRBci9_oJKETqvhKovGKzaw",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "/refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "07ebe2ab-c543-4beb-a8bb-ca161cb55b8e",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "60072bcb-6d66-47a5-b745-6f1248147fa8",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Auth",
+                "refresh"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Revoke",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "335d254e-7f07-434b-a1d9-0f55455a8562",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.unset(\"accessToken\");\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "9403aa8d-9b1d-4d6d-8e52-15c4f2cb629f",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Auth/revoke",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Auth",
+                "revoke"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "dc9329ae-277f-4adb-b3b3-5cfae5e52f3c",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "e2b8de24-aaf5-45fc-aa69-285397288dc7",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "191f0314-c5b1-4f5b-b357-ead93aff5ac0"
+    },
+    {
+      "name": "Delete Project Flow",
+      "item": [
+        {
+          "name": "01_Login As User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "85aecb99-2aa9-4c1d-9fd7-5f7055230ff7",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "5ed758e0-cd93-4be6-bd88-10a8af043cc5",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"emma@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02_GetAllProjects",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "06f72e70-46d8-4b75-aaaa-3b7142346a1b",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"projectId\", pm.response.json()[0].id);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "296aa3d5-052a-4ebe-9ad6-28e6f4877e7d",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03_Delete Project - no permissions",
+          "id": "1e11b70f-e587-4d5a-8563-ece98079f453",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04_Login As Tenant 2 Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "85aecb99-2aa9-4c1d-9fd7-5f7055230ff7",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessTokenTenant2\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "1a651f28-2d17-466b-b75b-bcbae51c9a9b",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"bob@widgets.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"widgets\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05_Delete Project -- no deletion",
+          "id": "dca315aa-030c-463d-9e23-294feeb9b9d7",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessTokenTenant2}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06_Login As Tenant 1 admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "85aecb99-2aa9-4c1d-9fd7-5f7055230ff7",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "54f01613-30b2-46b9-9b62-5e7acf0e01b3",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "07_Delete Project Copy",
+          "id": "780bf39a-cdd7-4135-bcea-0a9a949de5f1",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "687037f6-69e4-4cd0-95b3-3371244c236a"
+    },
+    {
+      "name": "Update Project Flow",
+      "item": [
+        {
+          "name": "01_Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "a70ca202-190a-4c0c-96b1-cf07c0db2c5a",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02_GetAllProjects",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "06f72e70-46d8-4b75-aaaa-3b7142346a1b",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"projectId\", pm.response.json()[0].id);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "9f5002ab-b79f-4161-964d-9b17847694d2",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03_Update as admin",
+          "id": "a01103d4-670f-4b7a-a13b-9b87d9760686",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": " {\r\n        \"title\": \"Q4 Marketing Campaign - Updated By Admin\",\r\n        \"description\": \"Launch new product marketing campaign for Q4\",\r\n        \"status\": \"IN_PROGRESS\"\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04_Login as creator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "8e5068b4-2b95-46d7-88b7-8096eacc5ae0",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"jane@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05_Update as creator",
+          "id": "4a24001f-c9f0-41a0-962b-c8d5c894388f",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": " {\r\n        \"title\": \"Q4 Marketing Campaign - Updated By creator\",\r\n        \"description\": \"Launch new product marketing campaign for Q4 -- creator update\",\r\n        \"status\": \"IN_PROGRESS\",\r\n        \"assignedTo\": \"john@acme.com\"\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06_Login as another user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "5a4c5fa3-b468-4ef1-b5f2-86dbcd17c2c2",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"mike@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "07_Update as another user",
+          "id": "566e670c-9195-4ee7-8d9b-20c94b3c857a",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": " {\r\n        \"title\": \"Q4 Marketing Campaign - should not work\",\r\n        \"description\": \"Launch new product marketing campaign for Q4 -- should not work\",\r\n        \"status\": \"IN_PROGRESS\",\r\n        \"assignedTo\": \"john@acme.com\"\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "42f5d8ea-ec72-4eeb-8b69-c2c58a42f752"
+    },
+    {
+      "name": "Add/Remove Project Tag",
+      "item": [
+        {
+          "name": "01_Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "adf4aa72-0403-4b64-a9e1-f30fbbdd7a00",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02_GetAllProjects",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "06f72e70-46d8-4b75-aaaa-3b7142346a1b",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"projectId\", pm.response.json()[0].id);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "10e77b1c-c41c-4177-bdd9-e4fb189e8fb8",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03_GetProjectById",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "96343ee0-de69-4edc-a52e-8c7a843603a6",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"tagSlug\", pm.response.json().tags[0].slug);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "6c8e9f43-0131-4b95-9c8d-14bee8e73455",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04_Remove Project Tag",
+          "id": "fdb8db47-f975-45ce-8d2f-19ab3675d614",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}/tags/{{tagSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}",
+                "tags",
+                "{{tagSlug}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05_GetProjectById - Tag Removed",
+          "id": "159e08b4-21db-46d4-b82e-1c1df79b523b",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06_Add Project Tag",
+          "id": "6fea7a7f-7c3f-4bb2-896e-7dc3e132ce54",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}/tags/{{tagSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}",
+                "tags",
+                "{{tagSlug}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "07_GetProjectById - Tag Added Back",
+          "id": "78d9f9c7-a1b4-4115-8729-a3c86b47d50a",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "9d0e1b2c-92b6-40b5-8844-72b8ee7c3f41"
+    },
+    {
+      "name": "Add/Remove Project Watcher",
+      "item": [
+        {
+          "name": "01_Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "8d19f464-51d5-4b26-bf5b-7581bdcf1470",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02_GetAllProjects",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "06f72e70-46d8-4b75-aaaa-3b7142346a1b",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"projectId\", pm.response.json()[0].id);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "ffe62132-3a28-4d14-84f0-28d46ac93408",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03_GetProjectById",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "96343ee0-de69-4edc-a52e-8c7a843603a6",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"projectWatcher\", pm.response.json().watchers[0].email);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "5aee4146-68f4-428b-84b1-b958b64fd289",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04_Remove Project  Watcher",
+          "id": "87b4ba48-a5e0-4b52-8657-e61f39cad346",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}/watchers/{{projectWatcher}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}",
+                "watchers",
+                "{{projectWatcher}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05_GetProjectById - Watcher Removed",
+          "id": "55c663e2-cb77-4fc7-bd48-cd806d934810",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06_Add Project Watcher",
+          "id": "c95e142c-1d5a-463b-8820-7714cdbd7ba6",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}/watchers/{{projectWatcher}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}",
+                "watchers",
+                "{{projectWatcher}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "07_GetProjectById - Watcher Added Back",
+          "id": "cc04d8af-73c4-4975-9db3-386916724f74",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "c2094724-e9a3-4000-8c2a-e83612599e57"
+    },
+    {
+      "name": "Tags",
+      "item": [
+        {
+          "name": "01_Login Tenant1 Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "0d08a1cc-88a6-4f79-b19f-41583a00fa97",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get all tags",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "eb8d2cf6-f448-4ebf-9ef7-5906e540ebcd",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "e702146a-1a31-4dcb-9b36-75e7b9c0cfaa",
+                "exec": [
+                  "if (pm.response.code === 200) {\r",
+                  "    pm.collectionVariables.set(\"tagSlug\", pm.response.json()[0].slug);\r",
+                  "    pm.collectionVariables.set(\"tagName\", pm.response.json()[0].name);\r",
+                  "}\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "5cec3557-9637-4b21-b104-5aa3288b6987",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tags/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tags",
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get specific tag",
+          "id": "6abbd625-dee1-45f6-a18a-6d0545303cdb",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/tags/{{tagSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tags",
+                "{{tagSlug}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get specific tag Copy",
+          "id": "4a24179c-b8d2-462b-b315-a957fd03c9b5",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/tags/{{tagSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tags",
+                "{{tagSlug}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get specific tag Copy 2",
+          "id": "70e47b0d-b3a1-4906-b166-8673801bb375",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/tags/{{tagName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tags",
+                "{{tagName}}"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "401cf895-e7d2-4d93-93d6-a322a2427c45"
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "01_Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "7bfda185-3803-4bac-b4d7-bd870e4d0611",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02_Get me",
+          "id": "103c1e6c-a354-4f43-9297-1346cf76e1c8",
+          "request": {
+            "method": "GET",
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "03_Get all users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"userEmail\", pm.response.json()[0].email);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "1de22f63-8654-4e76-9c4b-7479f26da583",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04_Get User By Email",
+          "id": "cc946a87-0918-4494-8c71-9490fbecc84d",
+          "request": {
+            "method": "GET",
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userEmail}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userEmail}}"
+              ]
+            }
+          }
+        }
+      ],
+      "id": "511472d3-01e2-4396-bfd4-47bd160e618f"
+    },
+    {
+      "name": "Create Project",
+      "item": [
+        {
+          "name": "01_Login Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d522e1e2-3770-4b7c-95e1-eabc6d8d9b13",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "70ee45f6-2672-4dca-ab70-81fb72c87bed",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@acme.com\",\r\n  \"password\": \"Password123!\",\r\n  \"tenantIdentifier\": \"acme\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "New Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ec94efa6-d82e-474f-b4e7-9107961c590e",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"statusName\", pm.response.json()[0].Name);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "08d57cca-9207-4819-bd66-679e44e069e0",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/statuses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "statuses"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03_Create Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "06f72e70-46d8-4b75-aaaa-3b7142346a1b",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 204) {\r",
+                  "    pm.collectionVariables.set(\"projectId\", pm.response.json().id);\r",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "5daff401-0a77-4715-b51a-d9e717371646",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"Title\": \"New Project Title\",\r\n\"Description\": \"New Project Description String\",\r\n\"Status\": {{statusName}},\r\n\"AssignedTo\": \"sarah@acme.com\",\r\n\"Watchers\":[\"sarah@acme.com\",\"mike@acme.com\",\"emma@acme.com\"],\r\n\"Tags\":[\"high-priority\",\"finance\"]\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "04_Get Project By Id",
+          "id": "4df1ec20-72ab-4069-8cd1-12ff51a73944",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "id": "6f3c5298-a726-4a1b-8ca4-afa52734e0f2"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "44b0bafa-485d-4e06-9a8b-df1e326d40b4",
+        "type": "text/javascript",
+        "exec": [
+          "if(!pm.collectionVariables.get(\"accessToken\")) {\r",
+          "    console.log(\"⚠️ No access token set.\");\r",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "1fe07ce7-edad-419d-ab4a-edbeb6b513ef",
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "id": "ffa319a3-e610-4555-a5cf-0b9adaf12ddf",
+      "key": "baseUrl",
+      "value": ""
+    },
+    {
+      "id": "626fc6ec-ac63-4cc6-b4d1-617226bb14fe",
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "id": "690d8c17-92d6-4805-a085-dbb6c4c949ae",
+      "key": "projectId",
+      "value": ""
+    },
+    {
+      "id": "87460d3d-bf80-4594-8c3f-131270b1417c",
+      "key": "accessTokenTenant2",
+      "value": ""
+    },
+    {
+      "id": "24583657-e493-4b07-9dd2-404e5b670122",
+      "key": "projectIdTenant2",
+      "value": ""
+    },
+    {
+      "id": "505d3904-1d77-4999-aa08-513b09ecc22a",
+      "key": "tagSlug",
+      "value": ""
+    },
+    {
+      "id": "bf812fbb-69ba-42b2-8af4-5b878014a743",
+      "key": "projectWatcher",
+      "value": ""
+    },
+    {
+      "id": "dfe87548-b7b3-4c17-a45d-06853d4aae5c",
+      "key": "tagName",
+      "value": ""
+    },
+    {
+      "id": "08f6ce2e-c4a6-4e0a-b4a6-9975c16b53c3",
+      "key": "userEmail",
+      "value": ""
+    },
+    {
+      "id": "6a18af66-2a6b-48c0-8b72-f32bca82c1ea",
+      "key": "statusName",
+      "value": ""
+    }
+  ]
+}

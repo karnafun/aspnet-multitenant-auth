@@ -352,18 +352,13 @@ public class DbSeeder
     private async Task SeedRolesAsync()
     {
         var roles = new[] { "Admin", "User" };
-
         foreach (var roleName in roles)
         {
             if (!await _roleManager.RoleExistsAsync(roleName))
             {
-                var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
-                if (!result.Succeeded)
-                {
-                    throw new Exception($"Failed to create role {roleName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                }
+                await _roleManager.CreateAsync(new IdentityRole { Name = roleName });
+                _logger.LogInformation("Created role: {RoleName}", roleName);
             }
         }
     }
-
 }

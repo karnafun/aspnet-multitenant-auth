@@ -223,6 +223,34 @@ try
     // BUILD APP
     // ============================================
     var app = builder.Build();
+    // Ensure roles exist (production-safe)
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+        if (!app.Environment.IsEnvironment("Testing"))
+        {
+            // Production: Run migrations
+            await context.Database.MigrateAsync();
+        }
+        else
+        {
+            // Testing: Create schema from model
+            await context.Database.EnsureCreatedAsync();
+        }
+
+        // Ensure roles exist
+        var roles = new[] { "Admin", "User" };
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole(role));
+            }
+        }
+    }
+
     app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseCors("AllowSPA");
 
@@ -231,7 +259,6 @@ try
     // ============================================
     var shouldSeed = app.Environment.IsDevelopment()
     || builder.Configuration.GetValue<bool>("SEED_DATABASE", false);
-
     if (shouldSeed)
     {
         Log.Information("Seeding database (Environment: {Env}, SEED_DATABASE: {Flag})",
@@ -352,3 +379,6 @@ static async Task SeedDatabaseAsync(WebApplication app)
         throw; // Re-throw so app doesn't start with bad data
     }
 }
+
+
+public partial class Program { }
