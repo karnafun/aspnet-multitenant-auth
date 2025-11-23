@@ -26,8 +26,13 @@ namespace AuthMastery.API.Models
                 return;
             }
 
-            var projectId = httpContext.GetRouteValue("projectId")?.ToString();
-            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id.ToString() == projectId);
+            if (!Guid.TryParse(httpContext.GetRouteValue("projectId")?.ToString(), out Guid projectId))
+            {
+                context.Fail();
+                return;
+            }
+
+            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
             if (project == null)
             {
                 context.Fail(); 

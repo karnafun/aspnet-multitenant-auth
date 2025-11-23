@@ -422,6 +422,7 @@ namespace AuthMastery.API.Services
                 var projectWithRelations = await _context.Projects
                     .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
                     .Include(p => p.ProjectWatchers).ThenInclude(pw => pw.User)
+                    .Include(p=>p.CreatedBy)
                     .FirstAsync(p => p.Id == project.Id);
 
                 return _mapper.Map<ProjectDetailDto>(projectWithRelations);

@@ -39,7 +39,7 @@ public class AuthController : ControllerBase
         var refreshToken = Request.Cookies[AuthConstants.RefreshTokenCookie];
         await _authService.RevokeRefreshTokenAsync(refreshToken);
         Response.Cookies.Delete(AuthConstants.RefreshTokenCookie);
-        return Ok();
+        return NoContent();
     }
    
     [HttpPost("refresh")]
